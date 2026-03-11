@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compliance Humaniser</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600&display=swap');
+
+:root {
+  --bg: #f4f2ee;
+  --white: #ffffff;
+  --ink: #1c1917;
+  --ink2: #44403c;
+  --muted: #a8a29e;
+  --rule: #e7e5e4;
+  --green: #15803d;
+  --green-bg: #f0fdf4;
+  --green-border: #bbf7d0;
+  --blue: #1d4ed8;
+  --blue-bg: #eff6ff;
+  --blue-border: #bfdbfe;
+  --amber: #b45309;
+  --amber-bg: #fffbeb;
+  --amber-border: #fde68a;
+  --red: #dc2626;
+  --shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.05);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
+  --r: 12px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Instrument Sans', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── HEADER ── */
+header {
+  background: var(--white);
+  border-bottom: 1px solid var(--rule);
+  padding: 0 40px;
+  height: 60px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+
+.logo {
+  display: flex; align-items: center; gap: 10px;
+}
+.logo-mark {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--ink);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+.logo-text {
+  font-family: 'Instrument Serif', serif;
+  font-size: 18px; color: var(--ink);
+}
+.logo-text span { font-style: italic; }
+
+.header-tag {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--muted);
+  background: var(--bg); padding: 4px 12px; border-radius: 100px;
+}
+
+/* ── MAIN LAYOUT ── */
+main {
+  max-width: 900px; margin: 0 auto;
+  padding: 48px 40px 80px;
+}
+
+/* ── HERO ── */
+.hero {
+  text-align: center; margin-bottom: 48px;
+}
+.hero h1 {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(36px, 5vw, 56px);
+  line-height: 1.1; letter-spacing: -0.01em;
+  margin-bottom: 14px;
+}
+.hero h1 em { font-style: italic; color: var(--green); }
+.hero p {
+  font-size: 16px; color: var(--ink2); max-width: 480px;
+  margin: 0 auto; line-height: 1.65; font-weight: 400;
+}
+
+/* ── INPUT CARD ── */
+.input-card {
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.card-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--rule);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.card-title {
+  font-size: 13px; font-weight: 600; color: var(--ink);
+  display: flex; align-items: center; gap: 8px;
+}
+.card-title .step {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--ink); color: white;
+  font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ── TABS ── */
+.tabs {
+  display: flex; gap: 0;
+  border-bottom: 1px solid var(--rule);
+  background: var(--bg);
+}
+.tab {
+  padding: 12px 20px;
+  font-size: 13px; font-weight: 500; color: var(--muted);
+  cursor: pointer; border: none; background: none;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+  margin-bottom: -1px;
+}
+.tab:hover { color: var(--ink); }
+.tab.active {
+  color: var(--ink); border-bottom-color: var(--ink);
+  background: var(--white);
+}
+
+.tab-panel { display: none; padding: 20px 24px; }
+.tab-panel.active { display: block; }
+
+textarea {
+  width: 100%; min-height: 180px; resize: vertical;
+  border: 1.5px solid var(--rule);
+  border-radius: 8px; padding: 14px 16px;
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 14px; line-height: 1.6; color: var(--ink);
+  background: var(--bg);
+  transition: border-color 0.2s;
+  outline: none;
+}
+textarea:focus { border-color: var(--ink); background: var(--white); }
+textarea::placeholder { color: var(--muted); }
+
+/* ── FILE DROP ── */
+.drop-zone {
+  border: 2px dashed var(--rule);
+  border-radius: 8px; padding: 40px 24px;
+  text-align: center; cursor: pointer;
+  transition: all 0.2s; background: var(--bg);
+  position: relative;
+}
+.drop-zone:hover, .drop-zone.drag-over {
+  border-color: var(--ink); background: var(--white);
+}
+.drop-zone input[type=file] {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer;
+}
+.drop-icon { font-size: 32px; margin-bottom: 10px; }
+.drop-text { font-size: 14px; font-weight: 500; color: var(--ink2); margin-bottom: 4px; }
+.drop-sub { font-size: 12px; color: var(--muted); }
+.drop-success {
+  display: none; align-items: center; gap: 10px;
+  justify-content: center;
+  font-size: 14px; font-weight: 500; color: var(--green);
+}
+.drop-success.show { display: flex; }
+
+/* ── OPTIONS ── */
+.options-row {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 12px; padding: 16px 24px;
+  border-top: 1px solid var(--rule); background: var(--bg);
+}
+.opt-group label {
+  display: block; font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.07em;
+  color: var(--muted); margin-bottom: 6px;
+}
+.opt-group select {
+  width: 100%; padding: 8px 12px;
+  border: 1.5px solid var(--rule); border-radius: 6px;
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 13px; color: var(--ink); background: var(--white);
+  cursor: pointer; outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23a8a29e' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 30px;
+}
+.opt-group select:focus { border-color: var(--ink); }
+
+/* ── GENERATE BUTTON ── */
+.generate-wrap {
+  padding: 16px 24px; border-top: 1px solid var(--rule);
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px;
+}
+.char-count { font-size: 12px; color: var(--muted); }
+
+.btn-generate {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--ink); color: white;
+  padding: 12px 24px; border: none; cursor: pointer;
+  border-radius: 8px;
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 14px; font-weight: 600;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.btn-generate:hover:not(:disabled) {
+  background: #292524;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  transform: translateY(-1px);
+}
+.btn-generate:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.btn-generate .spinner {
+  width: 14px; height: 14px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  animation: spin 0.7s linear infinite;
+  display: none;
+}
+.btn-generate.loading .spinner { display: block; }
+.btn-generate.loading .btn-label { display: none; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── ERROR ── */
+.error-box {
+  display: none; margin-top: 16px;
+  background: #fef2f2; border: 1px solid #fecaca;
+  border-radius: 8px; padding: 14px 16px;
+  font-size: 13px; color: var(--red); line-height: 1.5;
+}
+.error-box.show { display: block; }
+
+/* ── OUTPUT ── */
+#output { display: none; }
+#output.show { display: block; }
+
+.output-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px; padding-top: 8px;
+}
+.output-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 22px;
+}
+.btn-reset {
+  font-size: 12px; font-weight: 600; color: var(--muted);
+  background: none; border: 1px solid var(--rule);
+  padding: 6px 14px; border-radius: 6px; cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-reset:hover { color: var(--ink); border-color: var(--ink); }
+
+/* ── OUTPUT SECTIONS ── */
+.out-section {
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.4s, transform 0.4s;
+}
+.out-section.visible { opacity: 1; transform: translateY(0); }
+
+.out-section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px; border-bottom: 1px solid var(--rule);
+  background: var(--bg);
+}
+.out-section-label {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.07em; color: var(--ink2);
+}
+.out-icon {
+  width: 26px; height: 26px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+}
+.icon-story { background: var(--amber-bg); }
+.icon-qs { background: var(--blue-bg); }
+.icon-struct { background: var(--green-bg); }
+
+.btn-copy {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 600; color: var(--muted);
+  background: none; border: 1px solid var(--rule);
+  padding: 5px 12px; border-radius: 6px; cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-copy:hover { color: var(--ink); border-color: var(--ink); }
+.btn-copy.copied { color: var(--green); border-color: var(--green-border); background: var(--green-bg); }
+
+.out-body { padding: 20px 24px; }
+
+/* Story styling */
+.story-text {
+  font-family: 'Instrument Serif', serif;
+  font-size: 17px; line-height: 1.8; color: var(--ink2);
+}
+.story-text p { margin-bottom: 14px; }
+.story-text p:last-child { margin-bottom: 0; }
+
+/* Questions */
+.q-item {
+  padding: 16px 0; border-bottom: 1px solid var(--rule);
+}
+.q-item:last-child { border-bottom: none; padding-bottom: 0; }
+.q-label {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.07em; color: var(--blue); margin-bottom: 6px;
+}
+.q-stem {
+  font-size: 15px; font-weight: 500; color: var(--ink);
+  margin-bottom: 10px; line-height: 1.5;
+}
+.q-options-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.q-opt-item {
+  display: flex; gap: 8px; align-items: flex-start;
+  font-size: 13px; color: var(--ink2); line-height: 1.5;
+}
+.q-opt-letter {
+  width: 20px; height: 20px; min-width: 20px; border-radius: 50%;
+  border: 1.5px solid var(--rule);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; color: var(--muted);
+  margin-top: 1px;
+}
+.q-opt-item.correct .q-opt-letter {
+  background: var(--green-bg); border-color: var(--green-border); color: var(--green);
+}
+.q-opt-item.correct { color: var(--ink); font-weight: 500; }
+.q-rationale {
+  margin-top: 8px; padding: 10px 14px;
+  background: var(--amber-bg); border-left: 3px solid var(--amber-border);
+  border-radius: 0 6px 6px 0;
+  font-size: 12px; color: var(--amber); line-height: 1.5;
+}
+
+/* Module structure */
+.mod-item {
+  display: flex; gap: 16px; align-items: flex-start;
+  padding: 14px 0; border-bottom: 1px solid var(--rule);
+}
+.mod-item:last-child { border-bottom: none; padding-bottom: 0; }
+.mod-num {
+  font-family: 'Instrument Serif', serif;
+  font-size: 28px; color: var(--rule); line-height: 1; min-width: 32px;
+}
+.mod-content {}
+.mod-title { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 3px; }
+.mod-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+.mod-type {
+  display: inline-block; margin-top: 5px;
+  font-size: 10px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.07em; padding: 2px 8px; border-radius: 4px;
+}
+.type-story { background: var(--amber-bg); color: var(--amber); }
+.type-quiz { background: var(--blue-bg); color: var(--blue); }
+.type-scenario { background: var(--green-bg); color: var(--green); }
+.type-summary { background: var(--bg); color: var(--muted); border: 1px solid var(--rule); }
+
+/* ── LOADING STATE ── */
+.skeleton-wrap { display: none; }
+.skeleton-wrap.show { display: block; }
+
+.skeleton-section {
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  margin-bottom: 16px; overflow: hidden;
+}
+.skeleton-header {
+  height: 48px; background: var(--bg);
+  border-bottom: 1px solid var(--rule);
+  padding: 14px 20px; display: flex; align-items: center; gap: 10px;
+}
+.skeleton-body { padding: 20px 24px; display: flex; flex-direction: column; gap: 10px; }
+.skel {
+  background: linear-gradient(90deg, var(--rule) 25%, #ece9e4 50%, var(--rule) 75%);
+  background-size: 200% 100%;
+  border-radius: 4px; height: 14px;
+  animation: shimmer 1.5s infinite;
+}
+.skel.w-full { width: 100%; }
+.skel.w-3q { width: 75%; }
+.skel.w-half { width: 50%; }
+.skel.w-2q { width: 40%; }
+.skel.tall { height: 20px; }
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── FOOTER NOTE ── */
+.footer-note {
+  text-align: center; margin-top: 40px;
+  font-size: 12px; color: var(--muted); line-height: 1.6;
+}
+.footer-note a { color: var(--ink2); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 640px) {
+  header { padding: 0 20px; }
+  main { padding: 32px 20px 60px; }
+  .options-row { grid-template-columns: 1fr; }
+  .generate-wrap { flex-direction: column; align-items: stretch; }
+  .btn-generate { justify-content: center; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">✦</div>
+    <div class="logo-text">Compliance <span>Humaniser</span></div>
+  </div>
+  <div class="header-tag">EdTech Tool · v1</div>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>Turn policy into<br><em>learning people remember.</em></h1>
+    <p>Paste a compliance document or upload a PDF. Get back a human story, scenario questions, and a ready-to-use module structure.</p>
+  </div>
+
+  <!-- INPUT CARD -->
+  <div class="input-card">
+    <div class="card-header">
+      <div class="card-title">
+        <div class="step">1</div>
+        Add your compliance content
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('paste')">
+        📋 Paste text
+      </button>
+      <button class="tab" onclick="switchTab('upload')">
+        📄 Upload PDF / Word
+      </button>
+    </div>
+
+    <div id="tab-paste" class="tab-panel active">
+      <textarea
+        id="policy-text"
+        placeholder="Paste your policy, regulation, or compliance text here…&#10;&#10;Example: GDPR policy, health & safety procedure, data handling guidelines, code of conduct — anything that currently lives as dry text that nobody reads."
+        oninput="updateCharCount()"
+      ></textarea>
+    </div>
+
+    <div id="tab-upload" class="tab-panel">
+      <div class="drop-zone" id="drop-zone">
+        <input type="file" id="file-input" accept=".pdf,.doc,.docx,.txt" onchange="handleFile(this.files[0])">
+        <div id="drop-default">
+          <div class="drop-icon">📂</div>
+          <div class="drop-text">Drop your file here, or click to browse</div>
+          <div class="drop-sub">PDF, Word (.docx), or plain text · Max 5MB</div>
+        </div>
+        <div class="drop-success" id="drop-success">
+          <span>✅</span>
+          <span id="file-name">File loaded</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="options-row">
+      <div class="opt-group">
+        <label>Industry / context</label>
+        <select id="opt-industry">
+          <option value="general corporate">General corporate</option>
+          <option value="healthcare / NHS">Healthcare / NHS</option>
+          <option value="financial services">Financial services</option>
+          <option value="education">Education</option>
+          <option value="retail / customer service">Retail / customer service</option>
+          <option value="local government">Local government</option>
+          <option value="tech / software">Tech / software</option>
+          <option value="manufacturing / logistics">Manufacturing / logistics</option>
+        </select>
+      </div>
+      <div class="opt-group">
+        <label>Tone</label>
+        <select id="opt-tone">
+          <option value="professional but approachable">Professional but approachable</option>
+          <option value="conversational and friendly">Conversational and friendly</option>
+          <option value="serious and formal">Serious and formal</option>
+          <option value="direct and concise">Direct and concise</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="generate-wrap">
+      <div class="char-count" id="char-count">0 characters</div>
+      <button class="btn-generate" id="btn-generate" onclick="generate()" disabled>
+        <div class="spinner"></div>
+        <span class="btn-label">✦ &nbsp;Generate learning content</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="error-box" id="error-box"></div>
+
+  <!-- SKELETON -->
+  <div class="skeleton-wrap" id="skeleton">
+    <div class="skeleton-section">
+      <div class="skeleton-header">
+        <div class="skel w-2q tall"></div>
+      </div>
+      <div class="skeleton-body">
+        <div class="skel w-full"></div>
+        <div class="skel w-3q"></div>
+        <div class="skel w-full"></div>
+        <div class="skel w-half"></div>
+        <div class="skel w-full"></div>
+        <div class="skel w-3q"></div>
+      </div>
+    </div>
+    <div class="skeleton-section">
+      <div class="skeleton-header">
+        <div class="skel w-2q tall"></div>
+      </div>
+      <div class="skeleton-body">
+        <div class="skel w-full"></div>
+        <div class="skel w-3q"></div>
+        <div class="skel w-half"></div>
+        <div class="skel w-full"></div>
+        <div class="skel w-3q"></div>
+      </div>
+    </div>
+    <div class="skeleton-section">
+      <div class="skeleton-header">
+        <div class="skel w-2q tall"></div>
+      </div>
+      <div class="skeleton-body">
+        <div class="skel w-full"></div>
+        <div class="skel w-3q"></div>
+        <div class="skel w-full"></div>
+        <div class="skel w-half"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OUTPUT -->
+  <div id="output">
+    <div class="output-header">
+      <div class="output-title">Your learning content</div>
+      <button class="btn-reset" onclick="resetTool()">↺ Start over</button>
+    </div>
+
+    <!-- STORY -->
+    <div class="out-section" id="sec-story">
+      <div class="out-section-header">
+        <div class="out-section-label">
+          <div class="out-icon icon-story">📖</div>
+          The Human Story
+        </div>
+        <button class="btn-copy" onclick="copySection('story-content', this)">
+          <span>⎘</span> Copy
+        </button>
+      </div>
+      <div class="out-body">
+        <div class="story-text" id="story-content"></div>
+      </div>
+    </div>
+
+    <!-- QUESTIONS -->
+    <div class="out-section" id="sec-questions">
+      <div class="out-section-header">
+        <div class="out-section-label">
+          <div class="out-icon icon-qs">❓</div>
+          Scenario Questions
+        </div>
+        <button class="btn-copy" onclick="copySection('questions-content', this)">
+          <span>⎘</span> Copy
+        </button>
+      </div>
+      <div class="out-body">
+        <div id="questions-content"></div>
+      </div>
+    </div>
+
+    <!-- STRUCTURE -->
+    <div class="out-section" id="sec-structure">
+      <div class="out-section-header">
+        <div class="out-section-label">
+          <div class="out-icon icon-struct">🗂️</div>
+          Suggested Module Structure
+        </div>
+        <button class="btn-copy" onclick="copySection('structure-content', this)">
+          <span>⎘</span> Copy
+        </button>
+      </div>
+      <div class="out-body">
+        <div id="structure-content"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-note">
+    Powered by Claude AI · Built with ♥ for L&D professionals<br>
+    <small>Content is AI-generated — always review before using in a live course.</small>
+  </div>
+</main>
+
+<script>
+// ── Tab switching ──────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  event.target.closest('.tab').classList.add('active');
+  checkReady();
+}
+
+// ── Char count ─────────────────────────────────────────
+function updateCharCount() {
+  const txt = document.getElementById('policy-text').value;
+  document.getElementById('char-count').textContent = txt.length.toLocaleString() + ' characters';
+  checkReady();
+}
+
+function checkReady() {
+  const hasText = document.getElementById('policy-text').value.trim().length > 50;
+  const hasFile = fileContent.length > 50;
+  const activeTab = document.querySelector('.tab.active').textContent.trim();
+  const ready = activeTab.includes('Paste') ? hasText : hasFile;
+  document.getElementById('btn-generate').disabled = !ready;
+}
+
+// ── File handling ──────────────────────────────────────
+let fileContent = '';
+
+function handleFile(file) {
+  if (!file) return;
+  const maxSize = 5 * 1024 * 1024;
+  if (file.size > maxSize) {
+    showError('File too large. Please use a file under 5MB.');
+    return;
+  }
+
+  document.getElementById('file-name').textContent = file.name;
+
+  if (file.type === 'application/pdf') {
+    readPDF(file);
+  } else {
+    // txt, doc, docx — read as text
+    const reader = new FileReader();
+    reader.onload = e => {
+      fileContent = e.target.result;
+      showFileSuccess(file.name);
+      checkReady();
+    };
+    reader.readAsText(file);
+  }
+}
+
+function readPDF(file) {
+  // Load PDF.js from CDN
+  if (window.pdfjsLib) {
+    extractPDF(file);
+    return;
+  }
+  const script = document.createElement('script');
+  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+  script.onload = () => {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    extractPDF(file);
+  };
+  document.head.appendChild(script);
+}
+
+async function extractPDF(file) {
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    let text = '';
+    for (let i = 1; i <= Math.min(pdf.numPages, 20); i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      text += content.items.map(item => item.str).join(' ') + '\n';
+    }
+    fileContent = text.trim();
+    showFileSuccess(file.name);
+    checkReady();
+  } catch (e) {
+    showError('Could not read PDF. Try copying and pasting the text instead.');
+  }
+}
+
+function showFileSuccess(name) {
+  document.getElementById('drop-default').style.display = 'none';
+  const s = document.getElementById('drop-success');
+  document.getElementById('file-name').textContent = name;
+  s.classList.add('show');
+}
+
+// ── Drag and drop ──────────────────────────────────────
+const dz = document.getElementById('drop-zone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+dz.addEventListener('drop', e => {
+  e.preventDefault(); dz.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) handleFile(file);
+});
+
+// ── Error ──────────────────────────────────────────────
+function showError(msg) {
+  const box = document.getElementById('error-box');
+  box.textContent = '⚠ ' + msg;
+  box.classList.add('show');
+  setTimeout(() => box.classList.remove('show'), 6000);
+}
+
+// ── Generate ───────────────────────────────────────────
+async function generate() {
+  const activeTab = document.querySelector('.tab.active').textContent.trim();
+  const isPaste = activeTab.includes('Paste');
+  const content = isPaste
+    ? document.getElementById('policy-text').value.trim()
+    : fileContent.trim();
+
+  if (!content || content.length < 50) {
+    showError('Please add some compliance content first.');
+    return;
+  }
+
+  const industry = document.getElementById('opt-industry').value;
+  const tone = document.getElementById('opt-tone').value;
+
+  // UI: loading state
+  const btn = document.getElementById('btn-generate');
+  btn.classList.add('loading');
+  btn.disabled = true;
+  document.getElementById('error-box').classList.remove('show');
+  document.getElementById('output').classList.remove('show');
+  document.getElementById('skeleton').classList.add('show');
+  document.querySelectorAll('.out-section').forEach(s => s.classList.remove('visible'));
+
+  const prompt = `You are an expert instructional designer specialising in compliance training for ${industry} organisations. Your tone is ${tone}.
+
+A user has provided the following compliance/policy text:
+
+---
+${content.slice(0, 4000)}
+---
+
+Transform this into engaging learning content. Respond ONLY with valid JSON, no markdown, no preamble, exactly this structure:
+
+{
+  "story": {
+    "title": "A short, human title for the story (max 8 words)",
+    "paragraphs": ["paragraph 1", "paragraph 2", "paragraph 3", "paragraph 4"]
+  },
+  "questions": [
+    {
+      "stem": "A realistic workplace scenario question that tests application, not recall",
+      "options": [
+        {"letter": "A", "text": "Option text", "correct": false},
+        {"letter": "B", "text": "Option text", "correct": true},
+        {"letter": "C", "text": "Option text", "correct": false},
+        {"letter": "D", "text": "Option text", "correct": false}
+      ],
+      "rationale": "Brief explanation of why the correct answer is right and what the key learning is"
+    },
+    {
+      "stem": "Second scenario question",
+      "options": [
+        {"letter": "A", "text": "Option text", "correct": false},
+        {"letter": "B", "text": "Option text", "correct": false},
+        {"letter": "C", "text": "Option text", "correct": true},
+        {"letter": "D", "text": "Option text", "correct": false}
+      ],
+      "rationale": "Brief explanation"
+    },
+    {
+      "stem": "Third scenario question",
+      "options": [
+        {"letter": "A", "text": "Option text", "correct": true},
+        {"letter": "B", "text": "Option text", "correct": false},
+        {"letter": "C", "text": "Option text", "correct": false},
+        {"letter": "D", "text": "Option text", "correct": false}
+      ],
+      "rationale": "Brief explanation"
+    }
+  ],
+  "structure": [
+    {"number": 1, "title": "Module section title", "description": "What this section covers and why", "type": "story"},
+    {"number": 2, "title": "Module section title", "description": "What this section covers and why", "type": "scenario"},
+    {"number": 3, "title": "Module section title", "description": "What this section covers and why", "type": "quiz"},
+    {"number": 4, "title": "Module section title", "description": "What this section covers and why", "type": "scenario"},
+    {"number": 5, "title": "Module section title", "description": "What this section covers and why", "type": "summary"}
+  ]
+}
+
+Rules for the story: Write 4 paragraphs as a compelling, human narrative following a named character in a realistic ${industry} workplace situation. Show the stakes of getting this wrong — but make it human, not preachy. The character should face a realistic dilemma related to the compliance content.
+
+Rules for questions: Each question must present a real workplace situation requiring a judgment call. No "according to the policy" questions. Test application and decision-making.
+
+Rules for structure: Create a 5-section module structure that flows logically: hook → context → practice → deeper practice → apply & reflect.`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!response.ok) throw new Error('API error: ' + response.status);
+    const data = await response.json();
+    const raw = data.content.map(c => c.text || '').join('');
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+    renderOutput(parsed);
+
+  } catch (err) {
+    document.getElementById('skeleton').classList.remove('show');
+    btn.classList.remove('loading');
+    btn.disabled = false;
+    showError('Something went wrong generating the content. Please try again. (' + err.message + ')');
+  }
+}
+
+// ── Render output ──────────────────────────────────────
+function renderOutput(data) {
+  document.getElementById('skeleton').classList.remove('show');
+
+  // Story
+  const storyEl = document.getElementById('story-content');
+  storyEl.innerHTML = `<p><strong>${data.story.title}</strong></p>` +
+    data.story.paragraphs.map(p => `<p>${p}</p>`).join('');
+
+  // Questions
+  const qEl = document.getElementById('questions-content');
+  qEl.innerHTML = data.questions.map((q, i) => `
+    <div class="q-item">
+      <div class="q-label">Question ${i + 1}</div>
+      <div class="q-stem">${q.stem}</div>
+      <ul class="q-options-list">
+        ${q.options.map(o => `
+          <li class="q-opt-item ${o.correct ? 'correct' : ''}">
+            <div class="q-opt-letter">${o.letter}</div>
+            <span>${o.text}</span>
+          </li>
+        `).join('')}
+      </ul>
+      <div class="q-rationale">💡 ${q.rationale}</div>
+    </div>
+  `).join('');
+
+  // Structure
+  const typeLabels = { story: 'Narrative', scenario: 'Scenario', quiz: 'Knowledge check', summary: 'Summary & apply' };
+  const sEl = document.getElementById('structure-content');
+  sEl.innerHTML = data.structure.map(s => `
+    <div class="mod-item">
+      <div class="mod-num">${String(s.number).padStart(2, '0')}</div>
+      <div class="mod-content">
+        <div class="mod-title">${s.title}</div>
+        <div class="mod-desc">${s.description}</div>
+        <span class="mod-type type-${s.type}">${typeLabels[s.type] || s.type}</span>
+      </div>
+    </div>
+  `).join('');
+
+  // Show output with staggered animation
+  document.getElementById('output').classList.add('show');
+  const sections = ['sec-story', 'sec-questions', 'sec-structure'];
+  sections.forEach((id, i) => {
+    setTimeout(() => {
+      document.getElementById(id).classList.add('visible');
+    }, i * 150);
+  });
+
+  // Reset button
+  const btn = document.getElementById('btn-generate');
+  btn.classList.remove('loading');
+  btn.disabled = false;
+
+  // Scroll to output
+  setTimeout(() => {
+    document.getElementById('output').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 200);
+}
+
+// ── Copy ───────────────────────────────────────────────
+function copySection(id, btn) {
+  const el = document.getElementById(id);
+  const text = el.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ Copied';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.innerHTML = '<span>⎘</span> Copy';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+// ── Reset ──────────────────────────────────────────────
+function resetTool() {
+  document.getElementById('policy-text').value = '';
+  document.getElementById('output').classList.remove('show');
+  document.getElementById('char-count').textContent = '0 characters';
+  document.getElementById('btn-generate').disabled = true;
+  fileContent = '';
+  document.getElementById('drop-default').style.display = 'block';
+  document.getElementById('drop-success').classList.remove('show');
+  document.getElementById('file-input').value = '';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  updateCharCount();
+}
+</script>
+</body>
+</html>
