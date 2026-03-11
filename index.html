@@ -422,6 +422,22 @@ textarea::placeholder { color: var(--muted); }
 }
 .footer-note a { color: var(--ink2); }
 
+/* ── DEMO ── */
+.btn-demo {
+  background: none; border: none; cursor: pointer;
+  font-size: 12px; font-weight: 600; color: var(--blue);
+  padding: 0; font-family: 'Instrument Sans', sans-serif;
+  text-decoration: underline; text-underline-offset: 2px;
+}
+.btn-demo:hover { color: var(--ink); }
+.demo-banner {
+  display: none; align-items: center; gap: 10px;
+  background: var(--blue-bg); border: 1px solid var(--blue-border);
+  border-radius: 8px; padding: 10px 16px; margin-bottom: 16px;
+  font-size: 13px; color: var(--blue); font-weight: 500;
+}
+.demo-banner.show { display: flex; }
+
 /* ── RESPONSIVE ── */
 @media (max-width: 640px) {
   header { padding: 0 20px; }
@@ -515,7 +531,9 @@ textarea::placeholder { color: var(--muted); }
     </div>
 
     <div class="generate-wrap">
-      <div class="char-count" id="char-count">0 characters</div>
+      <div class="char-count" id="char-count">
+        0 characters &nbsp;·&nbsp; <button class="btn-demo" onclick="runDemo()">▶ Try demo</button>
+      </div>
       <button class="btn-generate" id="btn-generate" onclick="generate()" disabled>
         <div class="spinner"></div>
         <span class="btn-label">✦ &nbsp;Generate learning content</span>
@@ -523,6 +541,9 @@ textarea::placeholder { color: var(--muted); }
     </div>
   </div>
 
+  <div class="demo-banner" id="demo-banner">
+    ▶ <strong>Demo mode</strong> — this is pre-generated example output based on a sample GDPR policy. Add your own content above to generate real results.
+  </div>
   <div class="error-box" id="error-box"></div>
 
   <!-- SKELETON -->
@@ -936,8 +957,78 @@ function resetTool() {
   document.getElementById('drop-success').classList.remove('show');
   document.getElementById('file-input').value = '';
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  document.getElementById('demo-banner').classList.remove('show');
   updateCharCount();
 }
+
+// ── Demo mode ──────────────────────────────────────────
+const DEMO_DATA = {
+  story: {
+    title: "The Email That Almost Cost Everything",
+    paragraphs: [
+      "Maya had been at Meridian Financial for three years. She was careful, diligent, and proud of it. On a Thursday afternoon in October, she received an email from a client asking her to update their bank account details before a payment run the following morning. The email looked right. The name was right. She was busy.",
+      "She updated the details in the system and sent a confirmation. The payment — £47,000 — went out at 9am. By 10am, the client called to ask why their funds hadn't arrived. The email had not come from the client. The account number belonged to a fraudster who had been monitoring the client's inbox for weeks, waiting for exactly this moment.",
+      "The fraud team traced the payment but it was too late — the funds had been moved three times in under an hour. Meridian launched an internal review. Maya hadn't broken any rules, but a simple phone call to the client to verify the change would have stopped it entirely. A two-minute check. £47,000.",
+      "Under GDPR and financial conduct regulations, Meridian was required to report the incident within 72 hours. The investigation took four weeks. The client relationship survived — just. Maya still works at Meridian. She now calls to verify every account change, no matter how confident she feels about the source."
+    ]
+  },
+  questions: [
+    {
+      stem: "A client emails you asking to update their payment details before an urgent transfer tomorrow. The email address matches their usual one. What should you do?",
+      options: [
+        { letter: "A", text: "Update the details — the email address matches and the request seems legitimate", correct: false },
+        { letter: "B", text: "Call the client on a phone number you already have on file to verbally confirm the change before updating anything", correct: true },
+        { letter: "C", text: "Reply to the email asking them to confirm the request in writing", correct: false },
+        { letter: "D", text: "Update the details but flag it to your manager afterwards as a precaution", correct: false }
+      ],
+      rationale: "Email addresses can be spoofed or compromised. The only reliable verification for financial changes is a phone call using a number from your existing records — not one provided in the email itself. This is required under most financial conduct frameworks."
+    },
+    {
+      stem: "You discover that personal customer data was accidentally sent to the wrong email address 30 minutes ago. What is your first action?",
+      options: [
+        { letter: "A", text: "Email the recipient and ask them to delete it, then monitor the situation", correct: false },
+        { letter: "B", text: "Wait to see if the recipient responds before deciding whether to escalate", correct: false },
+        { letter: "C", text: "Report it to your Data Protection Officer or compliance team immediately — GDPR requires breach notification within 72 hours", correct: true },
+        { letter: "D", text: "Delete your sent email and hope the recipient doesn't notice", correct: false }
+      ],
+      rationale: "Under GDPR Article 33, a personal data breach that poses a risk to individuals must be reported to the supervisory authority within 72 hours of becoming aware of it. Internal reporting must happen immediately — do not wait to assess impact before escalating."
+    },
+    {
+      stem: "A colleague mentions they've been sharing work files via their personal Gmail because the company file system is slow. They're not sharing them externally — just between their work and personal accounts for convenience. Is this a problem?",
+      options: [
+        { letter: "A", text: "No — the data isn't going to anyone outside the company, so there's no real risk", correct: false },
+        { letter: "B", text: "Only if the files contain sensitive customer data", correct: false },
+        { letter: "C", text: "Yes — personal email accounts are outside company security controls and this constitutes unauthorised processing of company and potentially personal data", correct: true },
+        { letter: "D", text: "It depends on whether their personal Gmail has two-factor authentication enabled", correct: false }
+      ],
+      rationale: "Moving data to personal accounts bypasses company security controls, encryption, access logging, and retention policies. Under GDPR this is likely to constitute unauthorised processing regardless of intent. It should be reported and the colleague should be directed to use approved tools."
+    }
+  ],
+  structure: [
+    { number: 1, title: "The Cost of a Missed Check", description: "Open with Maya's story — a realistic narrative showing how a single unverified email led to a £47,000 fraud. Sets the stakes without lecturing.", type: "story" },
+    { number: 2, title: "What the Rules Actually Require", description: "A concise overview of the key GDPR obligations relevant to this team: verification of changes, breach reporting timelines, and authorised data handling.", type: "scenario" },
+    { number: 3, title: "Would You Have Caught It?", description: "Three scenario-based questions based on real incident types. Learners apply the rules to situations they'll actually face — not abstract policy recall.", type: "quiz" },
+    { number: 4, title: "The 72-Hour Clock", description: "A deeper scenario focused on breach response: what counts as a reportable breach, who to tell, and what happens if you don't. Includes a branching decision.", type: "scenario" },
+    { number: 5, title: "Your Personal Checklist", description: "A short, memorable set of habits learners can take back to their desk: verify before you change, report before you investigate, never use personal accounts.", type: "summary" }
+  ]
+};
+
+function runDemo() {
+  // Show loading skeleton briefly for realism
+  const btn = document.getElementById('btn-generate');
+  btn.classList.add('loading');
+  btn.disabled = true;
+  document.getElementById('error-box').classList.remove('show');
+  document.getElementById('output').classList.remove('show');
+  document.getElementById('skeleton').classList.add('show');
+  document.querySelectorAll('.out-section').forEach(s => s.classList.remove('visible'));
+
+  setTimeout(() => {
+    document.getElementById('demo-banner').classList.add('show');
+    renderOutput(DEMO_DATA);
+  }, 1800);
+}
+
 </script>
 </body>
 </html>
